@@ -95,7 +95,4 @@ Build a **Payment Customization Function** that enforces the following rules:
 - Clean and readable JavaScript logic
 - No databases or external APIs required
 
----
-
-## 🏗 Project Structure
 
