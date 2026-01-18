@@ -1,78 +1,101 @@
-# Shopify App Template - Extension only
+# Smart Checkout – Shipping Based COD Payment Control
 
-This is a template for building an [extension-only Shopify app](https://shopify.dev/docs/apps/build/app-extensions/build-extension-only-app). It contains the basics for building a Shopify app that uses only app extensions.
+## Hackathon Challenge 3: Smart Checkout with Shopify Functions  
+**Theme:** Smarter Checkout Experiences  
+**Difficulty:** Beginner  
+**Time Limit:** ~2 Hours  
+**Technology:** Shopify Functions (JavaScript)  
+**API Used:** Payment Customization API  
 
-This template doesn't include a server or the ability to embed a page in the Shopify Admin. If you want either of these capabilities, choose the [Remix app template](https://github.com/Shopify/shopify-app-template-remix) instead.
+---
 
-Whether you choose to use this template or another one, you can use your preferred package manager and the Shopify CLI with [these steps](#installing-the-template).
+## Overview
 
-## Benefits
+This project implements a **Shopify Payment Customization Function** that dynamically controls the visibility of payment methods during checkout based on:
 
-Shopify apps are built on a variety of Shopify tools to create a great merchant experience. The [create an app](https://shopify.dev/docs/apps/getting-started/create) tutorial in our developer documentation will guide you through creating a Shopify app.
+- Selected **shipping method**
+- **Cart total value**
 
-This app template does little more than install the CLI and scaffold a repository.
+The goal is to reduce revenue loss caused by high-value **Cash on Delivery (COD)** orders while maintaining a smooth and intuitive checkout experience.
 
-## Getting started
+---
 
-### Requirements
+## Merchant Use Case
 
-1. You must [download and install Node.js](https://nodejs.org/en/download/) if you don't already have it.
-1. You must [create a Shopify partner account](https://partners.shopify.com/signup) if you don’t have one.
-1. You must create a store for testing if you don't have one, either a [development store](https://help.shopify.com/en/partners/dashboard/development-stores#create-a-development-store) or a [Shopify Plus sandbox store](https://help.shopify.com/en/partners/dashboard/managing-stores/plus-sandbox-store).
+Shubham runs **Aiza**, an Arab beauty products Shopify store.  
+While COD increases conversions for low-value orders, it causes high return rates for expensive orders.
 
-### Installing the template
+To solve this, the checkout logic enforces:
 
-This template can be installed using your preferred package manager:
+- COD payment visibility only when **COD shipping** is selected
+- Credit Card payment visibility only when **Standard shipping** is selected
+- Complete removal of COD for carts worth **$550 or more**
 
-Using yarn:
+All logic runs server-side using **Shopify Functions**, ensuring speed, security, and reliability.
 
-```shell
-yarn create @shopify/app
-```
+---
 
-Using npm:
+## Prerequisites – Shipping Methods Setup
 
-```shell
-npm init @shopify/app@latest
-```
+Before using this function, configure the following shipping methods in your Shopify store:
 
-Using pnpm:
+### 1️⃣ Standard Shipping
+- **Name:** `Standard`
+- **Rate:** Free ($0)
+- **Description:** Regular delivery within 5–7 business days
 
-```shell
-pnpm create @shopify/app@latest
-```
+### Cash on Delivery Shipping
+- **Name:** `Cash on Delivery`
+- **Rate:** $15
+- **Description:** Pay when your order arrives (COD fee applies)
 
-This will clone the template and install the required dependencies.
+> ⚠️ Shipping method name matching is handled case-insensitively.
 
-#### Local Development
+---
 
-[The Shopify CLI](https://shopify.dev/docs/apps/tools/cli) connects to an app in your Partners dashboard. It provides environment variables and runs commands in parallel.
+## Objective
 
-You can develop locally using your preferred package manager. Run one of the following commands from the root of your app.
+Build a **Payment Customization Function** that enforces the following rules:
 
-Using yarn:
+### Shipping-Based Rules
+- **COD Shipping selected**
+  - Show **Cash on Delivery** payment method *(only if cart < $550)*
+  - Hide **Credit Card** payment method
 
-```shell
-yarn dev
-```
+- **Standard Shipping selected**
+  - Show **Credit Card** payment method
+  - Hide **Cash on Delivery** payment method
 
-Using npm:
+### Cart Value Restriction
+- **Cart ≥ $550**
+  - Hide **Cash on Delivery** completely (shipping + payment)
+- **Cart < $550**
+  - COD allowed **only when COD shipping is selected**
 
-```shell
-npm run dev
-```
+---
 
-Using pnpm:
+## Test Scenarios
 
-```shell
-pnpm run dev
-```
+| Shipping Method | Cart Total | Expected Behavior |
+|----------------|-----------|------------------|
+| Standard       | $150      | Credit Card visible, COD hidden |
+| Standard       | $350      | Credit Card visible, COD hidden |
+| COD            | $150      | COD visible, Credit Card hidden |
+| COD            | $549      | COD visible, Credit Card hidden |
+| COD            | $550      | COD hidden, only Standard + Credit Card visible |
 
-Open the URL generated in your console. Once you grant permission to the app, you can start development (such as generating extensions).
+---
 
-## Developer resources
+## Key Features
 
-- [Introduction to Shopify apps](https://shopify.dev/docs/apps/getting-started)
-- [App extensions](https://shopify.dev/docs/apps/build/app-extensions)
-- [Extension only apps](https://shopify.dev/docs/apps/build/app-extensions/build-extension-only-app)
-- [Shopify CLI](https://shopify.dev/docs/apps/tools/cli)
+- Server-side checkout logic using **Shopify Functions**
+- Dynamic response to **shipping method changes**
+- Exact threshold handling for `$550`
+- Case-insensitive shipping name detection
+- Clean and readable JavaScript logic
+- No databases or external APIs required
+
+---
+
+## 🏗 Project Structure
+
